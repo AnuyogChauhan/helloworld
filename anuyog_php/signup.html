@@ -1,0 +1,225 @@
+<html>
+<head>
+<link rel="stylesheet" href="signup_style.css" type="text/css" media="screen" />
+
+
+
+</head>
+<body bgcolor=#f1f1f1>
+<div class="wrapper">
+	<div class="header">
+		<div class="logo">
+			<img width=200 height=105 src="anu_logo.jpg">
+		</div>
+		<div class="logo_side_img">
+			<img width=400 height=105 src="img12.jpg">
+		</div>
+		<div class="h-button">
+			<p>Already Registered?<p>
+			<a  class="h-button-red"  href="login.php">Login</a>
+		</div>
+	</div>
+	<div class="img">
+		<img width=350 height=400 src="img3.jpg">
+	</div>
+	<div class="img_right">
+		<img width=300 height=350 src="img11.jpg">
+	</div>
+	<?php
+						if(isset($_POST['sub'])){
+						mysql_connect('localhost','root','');
+						mysql_select_db('signup');
+						$fname=$_POST['fname'];
+						$lname=$_POST['lname'];
+						$uname=$_POST['uname'];
+						$pwd=md5($_POST['pwd']);
+						$cpwd=$_POST['cpwd'];
+						$d=$_POST['date'];
+						$m=$_POST['month'];
+						$y=$_POST['year'];
+						$gender=$_POST['gender'];
+						$date=sprintf("%d-%d-%d",$y,$m,$d);
+						$flag=0;
+						$err1;
+						/*if((isset($_POST['lname'], $_POST['fname'], $_POST['uname'], $_POST['pwd'], $_POST['cpwd']))==FALSE)
+						echo '<p>Please fill in the form above</p>';
+						*/
+						if((empty($_POST['fname']))||(empty($_POST['lname']))||(empty($_POST['uname']))||(empty($_POST['pwd']))||(empty($_POST['cpwd'])))
+						{
+							$flag=1;
+							//echo "<script>alert('Fields cannot be empty.');history.back();</script>";
+							$e_field='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											Fields cannot be empty.
+										</div>
+									</div>';
+							
+						}
+						if(!(ctype_alpha($fname))||(!(ctype_alpha($lname))))
+						{
+						$flag=1;
+							//echo "<script>alert('First Name or Last Name must contain only alphabets.');history.back();</script>";
+							$err1='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											First Name or Last Name must contain only alphabet.
+										</div>
+									</div>';
+										
+						}
+						if(!preg_match('/^[A-Za-z0-9_]+$/',$uname))
+						{
+							$flag=1;
+							//echo "<script>alert('Username must be alphanumeric[_A-Za-z0-9].');history.back();</script>";
+							$err2='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											Username must be alphanumeric[_A-Za-z0-9].
+										</div>
+									</div>';
+						}
+
+						if(!checkdate($m,$d,$y))
+						{
+							$flag=1;
+							//echo "<script>alert('Invalid Date!!');history.back();</script>";
+							$err3='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											Invalid Date!!
+										</div>
+									</div>';
+						}
+						if($pwd!=$cpwd)
+						{
+							$flag=1;
+							//echo "<script>alert('Password does not match!!');history.back();</script>";
+							$err4='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											Password does not match!!
+										</div>
+									</div>';
+
+						}
+						$sql_q1="SELECT `First Name` from info WHERE `Username`='$uname'";
+						$res=mysql_query($sql_q1);
+						$count=mysql_num_rows($res);
+						if($count!=0)
+						{
+							$flag=1;
+							//echo "<script>alert('Username already exists!!');history.back();</script>";
+							$err5='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											Username already exists!!
+										</div>
+									</div>';
+						}
+						if($flag==0){
+						$sql_q2="INSERT INTO info VALUES ('$fname','$lname','$uname','$pwd','$gender','$date')";
+						$res1=mysql_query($sql_q2);
+						if($res1)
+						{
+							//echo "<script>alert('Signup Successful')</script>";
+							$success='<div class="err_class">
+										<div id="cross">
+											<img width=15 height=15 src="tick.jpg">
+										</div>
+										<div id="err_text">
+											Signup Successful.Go for LOGIN.
+										</div>
+									</div>';
+						}
+						else {
+								//echo "<script>alert('Unsuccessful Signup');history.back();</script>";
+								$success='<div class="err_class">
+										<div id="cross">
+											<img width=10 height=10 src="cross.jpg">
+										</div>
+										<div id="err_text">
+											Unsuccessfull Signup.
+										</div>
+									</div>';
+						}
+						}
+						}
+				?>
+
+	<div class="signup_box">
+		<div class="text_box">
+			<form action="" autocomplete="off" method="post">
+			<?php if(isset($e_field)) echo $e_field; ?>
+			<?php if(isset($success)) echo $success; ?><br>
+			First Name<br>
+			<?php if(isset($err1)) echo $err1; ?>
+			<input type=text name="fname">
+			<br>Last Name<br>
+			<?php if(isset($err1)) echo $err1; ?>
+			<input type=text name="lname">
+			<br>Username<br>
+			<?php if(isset($err2)||isset($err5)){ if(isset($err2))echo $err2;else echo $err5;} ?>
+			<input type=text name="uname">
+			<br>Password<br>
+			
+			<input type=password name="pwd">
+			<br>Confirm Password<br>
+			<?php if(isset($err4)) echo $err4; ?>
+			<input type=password name="cpwd">
+			<br><input type=radio name="Gender" value="Male">MALE
+			<input type=radio name="Gender" value="Female">FEMALE
+			<div id="dob">
+				<br>D.O.B:
+				
+				<select name="date">
+
+					<?php for($x=1;$x<=31;$x++) echo '<option value='.$x.'>'.$x.'</option>';?>
+				</select>
+				<select name="month">
+					<option value=1>January</option>
+					<option value=2>February</option>
+					<option value=3>March</option>
+					<option value=4>April</option>
+					<option value=5>May</option>
+					<option value=6>June</option>
+					<option value=7>July</option>
+					<option value=8>August</option>
+					<option value=9>September</option>
+					<option value=10>October</option>
+					<option value=11>November</option>
+					<option value=12>December</option>
+				</select>
+				<select name="year">
+				<?php for($x=1970;$x<=2013;$x++) echo '<option value='.$x.'>'.$x.'</option>';?>
+				</select>
+				
+				
+			</div>
+			<?php if(isset($err3)) echo $err3; ?>
+			<div id="button">
+				<br><input type=submit class="b"  name="sub" value="Submit">
+
+				<input type=reset class="effects b" name="reset" value="Reset">
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+</body>
+
+
+
+</html>
